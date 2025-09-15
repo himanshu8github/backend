@@ -98,8 +98,45 @@ app.patch('/admin/:id', Auth, (req, res)=> {
         }
     })
 
+
+
+
 //user
+
 const userAddToCart = [];
+
+app.post("/user/:id", (req, res) => {
+    
+    const id = parseInt(req.params.id);
+
+    const foodItem = foodMenu.find(info => info.id === id);
+
+    if(foodItem){
+        userAddToCart.push(foodItem);
+        res.send(200).status("Item added sucessfully");
+    }else{
+        res.status(401).send("Item out of stock");
+    }
+
+
+})
+
+app.delete("/user/:id", (req, res) => {
+
+    const id = parseInt(req.params.id);
+
+    const index = userAddToCart.find(item => item.id === id);
+
+    if(index != -1){
+        userAddToCart.splice(index, 1);
+        res.send("Item removed sucessfully");
+
+    }else{
+        res.send("No item is present in cart");
+    }
+})
+
+
 
 app.get('/menu', (req, res) => {
     res.send(foodMenu);
