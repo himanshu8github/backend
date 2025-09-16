@@ -105,6 +105,11 @@ app.patch('/admin/:id', Auth, (req, res)=> {
 
 const userAddToCart = [];
 
+app.get("/user/cart", (req, res) => {
+    res.json(userAddToCart);
+});
+
+
 app.post("/user/:id", (req, res) => {
     
     const id = parseInt(req.params.id);
@@ -113,7 +118,8 @@ app.post("/user/:id", (req, res) => {
 
     if(foodItem){
         userAddToCart.push(foodItem);
-        res.send(200).status("Item added sucessfully");
+        res.status(200).send("Item added successfully");
+
     }else{
         res.status(401).send("Item out of stock");
     }
@@ -125,7 +131,8 @@ app.delete("/user/:id", (req, res) => {
 
     const id = parseInt(req.params.id);
 
-    const index = userAddToCart.find(item => item.id === id);
+   const index = userAddToCart.findIndex(item => item.id === id);
+
 
     if(index != -1){
         userAddToCart.splice(index, 1);
