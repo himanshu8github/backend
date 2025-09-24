@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db.js");
-const UserData = require("./models/ValidationDB.js");
-const validateUser = require("./utils/validateUserMongoose.js")
+const UserData = require("./models/user.js");
+const validateUser = require("./utils/validateUser.js")
 
 dotenv.config();
 
