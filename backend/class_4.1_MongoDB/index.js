@@ -13,9 +13,23 @@ connectDB();
 
 app.post("/users/postroute", async (req, res) => {
   try {
-    const user = new User(req.body); // { name, age, email }
-    const savedUser = await user.save();
-    res.json(savedUser);
+       const { name, email, age } = req.body;
+        if (!email) {
+      return res.status(400).json({ message: "Email is required!" });
+    }
+
+        // Check if email already exists in the database
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use!" });
+    }
+
+        const savedUser = await User.create({ name, email, age });
+            res.status(201).json(savedUser); // Send the saved user data
+    
+    // const user = new User({name, email, age}); // { name, age, email }
+    // const savedUser = await user.save();
+    // res.json(savedUser);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -24,6 +38,13 @@ app.post("/users/postroute", async (req, res) => {
 app.get("/users/getroute", async (req, res) => {
   try {
     const users = await User.find(); 
+
+    // let age = 0;
+    // for await (const doc of users){
+    //   console.log(doc);
+    //   age++;
+
+    // }
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
