@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+
 const connectDB = require("./config/db.js");
 const UserData = require("./models/user.js");
 const validateUser = require("./utils/validateUser.js")
@@ -39,6 +40,7 @@ app.post("/register", async (req, res) => {
   
 
     try {
+
 
         await validateUser(req.body); // Validate user before saving
         // Create and save the new user data

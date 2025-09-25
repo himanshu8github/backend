@@ -1,5 +1,6 @@
 
 const UserData = require("./models/user.js"); 
+const validator = require("validator");
 
 
 async function validateUser(req, res) {
@@ -9,6 +10,16 @@ async function validateUser(req, res) {
 
     if(!isAllowed)
         throw new Error ("Fields are missing");
+
+    if(!validator.isEmail(data.email))
+        throw new Error ("Invalid email");
+
+    if(!validator.isStrongPassword(data.password))
+        throw new Error ("weak password");
+
+
+
+
 
     // // Check if all mandatory fields are present in the request body
     // const missingFields = mandatoryFields.filter(field => !req.body.hasOwnProperty(field));
