@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
-
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const connectDB = require("./config/db.js");
 const UserData = require("./models/user.js");
 const validateUser = require("./utils/validateUser.js")
@@ -10,23 +12,15 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
+
+
 
 app.get("/info", async (req, res) => {
 
     try{
-         const result = await UserData.find();
-         res.send(result);
-    }catch(err){
-        res.send("Error from get router : " + err.message)
-    }
-   
-});
-
-app.get("/info/:id", async (req, res) => {
-
-    try{
-        
-        const data = await UserData.findById(req.params.id);
+         const payload = jwt.verify(req.cookies.token,  "123456789Himanshu");
+        const data = await UserData.findById(payload._id);
         res.send(data);
 
     }catch(err){
@@ -37,7 +31,7 @@ app.get("/info/:id", async (req, res) => {
 app.post("/register", async (req, res) => {
     console.log("Request Body:", req.body); // Log the incoming request body to verify the keys
 
-  
+    req.body.password = await bcrypt.hash(req.body.password, 10);
 
     try {
 
@@ -52,6 +46,48 @@ app.post("/register", async (req, res) => {
     }
 });
 
+app.get("/info", async (req, res) => {
+
+    try{
+
+        //validate the user first
+
+        const payload = jwt.verify(req.cookies.token,  "123456789Himanshu");
+         console.log(payload);
+         const result = await UserData.find();
+         res.send(result);
+    }catch(err){
+        res.send("Error from get router : " + err.message)
+    }
+   
+});
+
+//login
+app.post("/login", async (req, res) => {
+
+
+    try{
+    
+
+        const identify = await UserData.findOne({email:req.body.email});
+        
+        if(!(req.body.email === identify.email))
+            throw new Error ("Invalid credentials"); 
+
+        const isAllowed = await bcrypt.compare(req.body.password, identify.password);
+
+        if(!(isAllowed))
+            throw new Error("Invalid credentials");
+
+        //jwt token 
+        const token = jwt.sign({_id:identify._id, email:identify.email}, "123456789Himanshu", {expiresIn: "10"}); // time is in seconds
+        res.cookie("token", token);
+        res.send("Login sucess");
+
+    }catch(err){
+        res.send(err.message + "error coming from login post route");
+    }
+})
 
 app.patch("/update", async(req, res) => {
 

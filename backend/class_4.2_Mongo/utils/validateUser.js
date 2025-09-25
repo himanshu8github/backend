@@ -1,37 +1,27 @@
-
-const UserData = require("./models/user.js"); 
+const UserData = require("../models/user.js");
 const validator = require("validator");
 
-
-async function validateUser(req, res) {
+async function validateUser(data) {  // Accept `data` as parameter instead of directly using `req`
     const mandatoryFields = ["firstName", "email", "age", "password"];
 
+    // Validate if mandatory fields are included in the data
     const isAllowed = mandatoryFields.every((k) => Object.keys(data).includes(k));
 
-    if(!isAllowed)
-        throw new Error ("Fields are missing");
+    if (!isAllowed)
+        throw new Error("Fields are missing");
 
-    if(!validator.isEmail(data.email))
-        throw new Error ("Invalid email");
+    // Validate email
+    if (!validator.isEmail(data.email))
+        throw new Error("Invalid email");
 
-    if(!validator.isStrongPassword(data.password))
-        throw new Error ("weak password");
+    // Validate password strength
+    if (!validator.isStrongPassword(data.password))
+        throw new Error("Weak password");
 
-
-
-
-
-    // // Check if all mandatory fields are present in the request body
-    // const missingFields = mandatoryFields.filter(field => !req.body.hasOwnProperty(field));
-
-    // if (missingFields.length > 0) {
-    //     return res.status(400).json({ message: `Missing fields: ${missingFields.join(", ")}` });
-    // }
-
-    // Check if the email already exists
-    const existingUser = await UserData.findOne({ email: req.body.email });
+    // Check if the email already exists in the database
+    const existingUser = await UserData.findOne({ email: data.email });
     if (existingUser) {
-        return res.status(400).json({ message: "Email already exists!" });
+        throw new Error("Email already exists!");
     }
 }
 
