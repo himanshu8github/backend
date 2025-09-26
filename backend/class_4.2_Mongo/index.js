@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const connectDB = require("./config/db.js");
 const UserData = require("./models/user.js");
 const validateUser = require("./utils/validateUser.js")
+const userAuth = require('./middleware/userAuth.js')
 
 dotenv.config();
 
@@ -46,16 +47,12 @@ app.post("/register", async (req, res) => {
     }
 });
 
-app.get("/info", async (req, res) => {
+app.get("/info", userAuth, async (req, res) => {
 
     try{
 
-        //validate the user first
-
-        const payload = jwt.verify(req.cookies.token,  "123456789Himanshu");
-         console.log(payload);
-         const result = await UserData.find();
-         res.send(result);
+  
+         res.send(req.result);
     }catch(err){
         res.send("Error from get router : " + err.message)
     }
@@ -89,11 +86,11 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.patch("/update", async(req, res) => {
+app.patch("/update", userAuth, async(req, res) => {
 
     try{
 
-        const {_id, ...update} = req.body;
+     
         await UserData.findByIdAndUpdate(_id, update, { runValidators: true});
         res.send("update sucessfully");
 
@@ -103,7 +100,8 @@ app.patch("/update", async(req, res) => {
     }
 })
 
-app.delete("/delete/:id", async (req, res) => {
+app.delete("/delete/:id", userAuth, async (req, res) => {
+
 
     try{
 
